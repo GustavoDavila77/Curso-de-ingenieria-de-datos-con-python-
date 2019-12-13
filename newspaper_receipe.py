@@ -109,7 +109,7 @@ def _remove_new_lines_from_body(df):
     return df
 
 def _tokenize_column(df, column_name):
-    logger.info('Enrichment title')
+    logger.info('Enrichment {}'.format(column_name))
     enrichment_title = (df
                         .dropna()
                         .apply(lambda row: nltk.word_tokenize(row[column_name]), axis=1)
