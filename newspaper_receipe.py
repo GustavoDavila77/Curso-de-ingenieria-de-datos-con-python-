@@ -6,11 +6,18 @@ import hashlib
 import logging 
 logging.basicConfig(level=logging.INFO)
 from urllib.parse import urlparse
+import nltk
+from nltk.corpus import stopwords
 
+#nltk.download('punkt')  //descargar si es la primera vez que se usa
+#nltk.download('stopwords')
 import pandas as pd
 
 #reference to logging is for know where are executing our code
 logger = logging.getLogger(__name__)
+
+#especified lenguaje of stopwords
+stop_words =set(stopwords.words('spanish'))
 
 def main(filename):
     logger.info('Starting cleaning process')
@@ -22,6 +29,9 @@ def main(filename):
     df = _fill_missing_titles(df)
     df = _generate_uids_for_rows(df)
     df = _remove_new_lines_from_body(df)
+    df = _tokenize_column(df, 'title') #get count importan words in title or body(only change in function)
+    df = _tokenize_column(df, 'body') #get count importan words in title or body(only change in function)
+
     return df
 
 def _read_data(filename):
@@ -97,6 +107,22 @@ def _remove_new_lines_from_body(df):
     df['body'] = stripped_dody #body es remplazado por stripped_body
 
     return df
+
+def _tokenize_column(df, column_name):
+    logger.info('Enrichment title')
+    enrichment_title = (df
+                        .dropna()
+                        .apply(lambda row: nltk.word_tokenize(row[column_name]), axis=1)
+                        .apply(lambda tokens: list(filter(lambda token: token.isalpha(),tokens)))
+                        .apply(lambda tokens: list(map(lambda token: token.lower(), tokens)))
+                        .apply(lambda word_list: list(filter(lambda word: word not in stop_words, word_list)))
+                        .apply(lambda valid_word_list: len(valid_word_list))
+                        )
+    newcolname = 'n_tokens_' + column_name
+    df[newcolname] = enrichment_title
+
+    return df 
+                    
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     #filename save input argument
