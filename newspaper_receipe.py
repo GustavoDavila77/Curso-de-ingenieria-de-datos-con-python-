@@ -34,7 +34,8 @@ def main(filename):
     df = _remove_duplicate_entries(df, 'title')
     df = _drop_rows_with_missing_values(df)
     _save_data(df,filename)
-
+    #TODO Implementar analisis descriptivo en esta receta
+    
     return df
 
 def _read_data(filename):
