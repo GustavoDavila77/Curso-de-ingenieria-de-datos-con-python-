@@ -31,6 +31,9 @@ def main(filename):
     df = _remove_new_lines_from_body(df)
     df = _tokenize_column(df, 'title') #get count importan words in title or body(only change in function)
     df = _tokenize_column(df, 'body') #get count importan words in title or body(only change in function)
+    df = _remove_duplicate_entries(df, 'title')
+    df = _drop_rows_with_missing_values(df)
+    _save_data(df,filename)
 
     return df
 
@@ -109,7 +112,7 @@ def _remove_new_lines_from_body(df):
     return df
 
 def _tokenize_column(df, column_name):
-    logger.info('Enrichment {}'.format(column_name))
+    logger.info('Calculating the number of unique tokens in {}'.format(column_name))
     enrichment_title = (df
                         .dropna()
                         .apply(lambda row: nltk.word_tokenize(row[column_name]), axis=1)
@@ -122,7 +125,23 @@ def _tokenize_column(df, column_name):
     df[newcolname] = enrichment_title
 
     return df 
-                    
+
+def _remove_duplicate_entries(df, column_name):
+    logger.info('Removing duplicate entries')
+    df.drop_duplicates(subset = [column_name], keep='first', inplace = True)
+
+    return df
+
+def _drop_rows_with_missing_values(df):
+    logger.info('Dropping rows with missing values')
+
+    return df.dropna()
+
+def _save_data(df, filename):
+    clean_filename = 'clean_{}'.format(filename)
+    logger.info('Saving data at location: {}'.format(clean_filename))
+    df.to_csv(clean_filename, encoding = 'utf-8-sig')
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     #filename save input argument
