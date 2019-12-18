@@ -1,4 +1,3 @@
-#programa para cargar a la base de datos
 import argparse
 import logging
 logging.basicConfig(level = logging.INFO)

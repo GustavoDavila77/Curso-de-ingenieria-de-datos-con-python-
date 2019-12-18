@@ -1,4 +1,3 @@
-#programa para hacer la limpieza de un dataset
 
 #for get arguments
 import argparse
